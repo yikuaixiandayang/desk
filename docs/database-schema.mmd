@@ -1,0 +1,65 @@
+```mermaid
+erDiagram
+    electron_store ||--o{ memory_facts : "memory字段"
+    electron_store ||--o{ timers : "timers字段"
+    electron_store ||--o{ todos : "todos字段"
+    electron_store ||--o{ diary : "diary字段"
+    electron_store ||--o{ achievements : "achievements字段"
+    pet_stats_db ||--o{ reminders_log : "reminders表"
+    pet_stats_db ||--o{ achievements_log : "achievements表"
+
+    electron_store {
+        TEXT key "emotion/history/stats"
+        TEXT pet "x/y/width/height"
+        TEXT settings "tts/widget/autoLaunch"
+        TEXT nurture "好感度/经验/等级"
+        TEXT personality "话唠/粘人/学霸/探险"
+        TEXT pomodoro "番茄钟状态"
+        TEXT appConfig "api地址/key/模型"
+    }
+
+    memory_facts {
+        TEXT fact "记忆要点（≤20条）"
+        REAL updatedAt "更新时间"
+        INTEGER summarizedCount "总结次数"
+    }
+
+    timers {
+        TEXT id "UUID"
+        TEXT text "提醒内容"
+        REAL fireAt "触发时间"
+        BOOLEAN done "是否完成"
+    }
+
+    todos {
+        TEXT id "UUID"
+        TEXT text "待办内容"
+        BOOLEAN done "是否完成"
+        REAL createdAt "创建时间"
+    }
+
+    diary {
+        TEXT date "日期"
+        TEXT text "日记内容"
+    }
+
+    achievements {
+        TEXT id "成就ID"
+        REAL unlockedAt "解锁时间"
+    }
+
+    reminders_log {
+        INTEGER id PK "自增"
+        TEXT type "water/sedentary"
+        INTEGER delivered_at "送达时间"
+        INTEGER acked_at "确认时间"
+    }
+
+    achievements_log {
+        TEXT id PK "成就ID"
+        TEXT name "名称"
+        TEXT description "描述"
+        INTEGER progress "进度"
+        INTEGER unlocked_at "解锁时间"
+    }
+```

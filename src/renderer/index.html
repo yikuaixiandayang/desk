@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob: data:; connect-src 'self' ws: http://127.0.0.1:*; worker-src 'self' blob:; font-src 'self' data:"
+    />
+    <title>银月桌宠</title>
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+
+    <!-- 宠物对话气泡 -->
+    <div id="bubble" class="hidden">
+      <div id="bubble-text"></div>
+      <div id="bubble-actions"></div>
+    </div>
+
+    <!-- 桌面常驻小卡片 -->
+    <div id="widget" class="hidden">
+      <span id="widget-time"></span>
+      <span id="widget-extra" class="hidden"></span>
+    </div>
+
+    <!-- 左键单击弹出的精简工具条（聊天+语音） -->
+    <div id="toolbar" class="hidden">
+      <button id="btn-chat" class="tool-btn" title="对话">对话</button>
+      <button id="btn-mic" class="tool-btn" title="语音输入">语音</button>
+    </div>
+
+    <!-- 文字输入条 -->
+    <div id="chatbar" class="hidden">
+      <input id="chat-input" type="text" placeholder="和银月说点什么…" maxlength="500" />
+      <button id="btn-send" class="round-btn primary" title="发送">发送</button>
+      <button id="btn-chat-close" class="round-btn" title="收起">收起</button>
+    </div>
+
+    <!-- 控制台（横向标签页） -->
+    <div id="menu" class="hidden">
+      <div class="menu-tabs" role="tablist">
+        <button class="tab active" data-tab="daily">日常</button>
+        <button class="tab" data-tab="voice">声音</button>
+        <button class="tab" data-tab="nurture">养成</button>
+        <button class="tab" data-tab="ai">AI</button>
+        <button class="tab" data-tab="assistant">助手</button>
+        <button class="tab" data-tab="system">系统</button>
+        <button id="btn-menu-quit" class="menu-quit" title="关闭设置面板">关闭</button>
+      </div>
+
+      <!-- ① 日常 — 高频快捷开关 -->
+      <div class="tab-page active" id="tab-daily">
+        <div class="section-header wide">快捷操作</div>
+        <div class="menu-row"><span>行为模式</span>
+          <select id="opt-move-mode">
+            <option value="auto">自由漫步</option>
+            <option value="still">原地待命</option>
+          </select>
+        </div>
+        <div class="menu-row wide"><span>宠物大小 <b id="lbl-scale"></b>（悬停宠物 Ctrl+滚轮 亦可）</span>
+          <input id="opt-scale" type="range" min="0.5" max="2" step="0.05" />
+        </div>
+        <div class="menu-row"><span>语音播报</span><input id="opt-tts" type="checkbox" /></div>
+        <div class="menu-row"><span>健康提醒</span><input id="opt-reminder" type="checkbox" /></div>
+        <div class="menu-row"><span>久坐(分钟)</span><input id="opt-sedentary" type="number" min="10" max="240" step="5" /></div>
+        <div class="menu-row"><span>喝水(分钟)</span><input id="opt-water" type="number" min="10" max="240" step="5" /></div>
+        <div class="menu-row wide">
+          <button id="btn-pomodoro-start" class="btn primary">开始番茄时钟</button>
+          <span id="pomodoro-status" class="muted">专注 25 分钟</span>
+        </div>
+        <div class="menu-row wide daily-stats">
+          <span class="stat-cell">真实使用 <b id="stat-active-min">0</b> 分钟</span>
+          <span class="stat-cell">聊天 <b id="stat-chats">0</b> 次</span>
+          <span class="stat-cell">番茄完成 <b id="stat-pomodoros">0</b> 个</span>
+        </div>
+        <div class="menu-row wide daily-stats" id="stat-keys-row">
+          <span class="stat-cell" id="stat-keys-toggle" title="点击展开详情">按键 <b id="stat-keys-total">0</b> 次 <span class="keys-more">▸</span></span>
+        </div>
+        <div class="menu-row wide daily-stats keys-detail hidden" id="stat-keys-detail">
+          <span class="stat-cell">字符键 <b id="stat-keys-chars">0</b></span>
+          <span class="stat-cell">空格 <b id="stat-keys-space">0</b></span>
+          <span class="stat-cell">回车 <b id="stat-keys-enter">0</b></span>
+        </div>
+      </div>
+
+      <!-- ② 声音 — 不变 -->
+      <div class="tab-page" id="tab-voice">
+        <div class="menu-row"><span>语音引擎</span>
+          <select id="opt-tts-engine">
+            <option value="edge">Edge 神经语音（推荐）</option>
+            <option value="sapi">系统语音（离线）</option>
+            <option value="custom">自定义克隆端点</option>
+          </select>
+        </div>
+        <div class="menu-row wide"><span>音色</span><select id="opt-tts-voice"></select></div>
+        <div class="menu-row wide custom-tts"><span>端点URL</span><input id="opt-tts-url" type="text" placeholder="http://…/v1/audio/speech" /></div>
+        <div class="menu-row custom-tts"><span>模型名</span><input id="opt-tts-custom-model" type="text" placeholder="model" /></div>
+        <div class="menu-row custom-tts"><span>音色名</span><input id="opt-tts-custom-voice" type="text" placeholder="voice" /></div>
+        <div class="menu-row custom-tts"><span>鉴权Key</span><input id="opt-tts-key" type="password" placeholder="可留空" /></div>
+        <div class="menu-row"><span>语速 <b id="lbl-rate"></b></span><input id="opt-tts-rate" type="range" min="0.5" max="2" step="0.05" /></div>
+        <div class="menu-row"><span>音调 <b id="lbl-pitch"></b></span><input id="opt-tts-pitch" type="range" min="0.5" max="2" step="0.05" /></div>
+        <div class="menu-row"><span>音量 <b id="lbl-volume"></b></span><input id="opt-tts-volume" type="range" min="0" max="1" step="0.05" /></div>
+        <div class="menu-row wide"><button id="btn-tts-test" class="btn primary">试听当前音色</button><span id="tts-test-result"></span></div>
+      </div>
+
+      <!-- ③ 养成 — 聚焦宠物状态 + 互动 -->
+      <div class="tab-page" id="tab-nurture">
+        <div class="menu-row"><span>等级</span><span id="nurture-level" class="value">Lv.1 初识</span></div>
+        <div class="menu-row wide"><span>经验 <b id="nurture-exp"></b></span>
+          <div class="bar"><div id="nurture-exp-bar" class="bar-fill"></div></div>
+        </div>
+        <div class="menu-row wide"><span>饱食度 <b id="nurture-satiety"></b></span>
+          <div class="bar"><div id="nurture-satiety-bar" class="bar-fill satiety"></div></div>
+        </div>
+        <div class="menu-row wide"><span>心情 <b id="nurture-mood"></b></span>
+          <div class="bar"><div id="nurture-mood-bar" class="bar-fill mood"></div></div>
+        </div>
+        <div class="menu-row"><span>道具库存</span><span id="nurture-items" class="value">--</span></div>
+        <div class="menu-row wide">
+          <button id="btn-feed-fish" class="btn">喂小鱼干</button>
+          <button id="btn-feed-snack" class="btn">喂点心</button>
+          <button id="btn-feed-cake" class="btn">喂蛋糕</button>
+        </div>
+        <div class="menu-row"><span>性格类型</span><span id="personality-type" class="value">均衡型</span></div>
+        <div class="menu-row wide"><span>成就徽章</span><span id="achievement-badges" class="value">暂无</span></div>
+        <div class="hint wide">互动（聊天/摸头/番茄完成）会随机掉落道具；饱食度低于 30 会饿哭。喂食加饱食度+经验，经验满升级解锁新台词。</div>
+      </div>
+
+      <!-- ④ AI — 模型 + 记忆合并 -->
+      <div class="tab-page" id="tab-ai" data-first-sub="模型">
+        <div class="menu-row"><span>模式</span>
+          <select id="opt-api-mode">
+            <option value="openai">直连大模型</option>
+            <option value="offline">离线兜底（不用网络）</option>
+          </select>
+        </div>
+        <div class="menu-row wide"><span>接口地址</span><input id="opt-api-url" type="text" placeholder="http://…:8642" /></div>
+        <div class="menu-row"><span>模型名</span><input id="opt-api-model" type="text" placeholder="GLM-5.2" /></div>
+        <div class="menu-row"><span>API Key</span><input id="opt-api-key" type="password" placeholder="留空保持不变" /></div>
+        <div class="menu-row wide"><button id="btn-api-test" class="btn primary">测试连接</button><span id="api-test-result"></span></div>
+        <div class="section-header wide">记忆</div>
+        <div class="menu-row"><span>长期记忆</span><input id="opt-memory-enabled" type="checkbox" /></div>
+        <div class="menu-row"><span>记忆条数</span><span id="memory-count" class="value">0</span></div>
+        <div class="menu-row wide"><span id="opt-memory-dir" class="dir-label">…</span></div>
+        <div class="menu-row">
+          <button id="btn-memory-dir" class="btn">更换目录</button>
+          <button id="btn-memory-open" class="btn">打开目录</button>
+        </div>
+        <div class="menu-row">
+          <button id="btn-memory-summarize" class="btn primary">立即总结</button>
+          <button id="btn-memory-export" class="btn">导出</button>
+          <button id="btn-memory-import" class="btn">导入</button>
+        </div>
+        <div class="menu-row wide">
+          <button id="btn-store-path" class="btn">打开数据目录</button>
+        </div>
+        <div class="hint wide">记忆 = 应用数据库 + 所选目录明文副本（记忆.json / 记忆.md），每 12 轮对话自动总结。"打开数据目录"会打开存档所在文件夹（含 config.json / pet-stats.db / 模型）。</div>
+      </div>
+
+      <!-- ⑤ 助手 — 原「工具」改名 -->
+      <div class="tab-page" id="tab-assistant">
+        <div class="menu-row"><span>定时提醒</span></div>
+        <div id="timer-list" class="timer-list wide"><div class="muted">暂无（对话里说"提醒我30分钟后…"）</div></div>
+        <div class="menu-row"><span>待办事项</span>
+          <button id="btn-todo-view" class="btn">查看待办</button>
+          <button id="btn-todo-clear" class="btn">清除已完成</button>
+        </div>
+        <div class="menu-row"><span>桌面小卡片</span><input id="opt-widget-enabled" type="checkbox" /></div>
+        <div class="section-header wide">定时任务</div>
+        <div class="menu-row wide"><span>每日早报(HH:MM,留空关闭)</span><input id="opt-morning-report" type="text" placeholder="如 09:00" /></div>
+        <div class="hint wide">到点后银月会本地播报今日待办+天气，不需要后端服务。</div>
+        <div class="menu-row"><span>每日汇报时间</span><input id="opt-report-at" type="text" maxlength="5" placeholder="HH:MM，空=关闭" /></div>
+        <div class="menu-row wide"><span>汇报地址</span><input id="opt-report-url" type="text" placeholder="http://host:port" /></div>
+        <div class="hint wide">到点后把今日活跃/聊天/提醒/心情等数据 POST 到该地址（Hermes agent）。离线或不可达时静默跳过，不影响使用。</div>
+        <div class="menu-row"><span>语音识别模型</span><button id="btn-asr-dl" class="btn">检查/下载</button></div>
+        <div class="menu-row"><span>快捷键</span><span class="value">Alt+Y 对话 · Alt+J 剪贴板</span></div>
+      </div>
+
+      <!-- ⑥ 系统 — 完整配置 + 行为参数 + 数据操作 -->
+      <div class="tab-page" id="tab-system" data-first-sub="基础">
+        <div class="menu-row"><span>开机自启</span><input id="opt-autolaunch" type="checkbox" /></div>
+        <div class="hint wide">系统登录后自动在后台启动银月，无需手动打开。</div>
+
+        <div class="section-header wide">宠物自定义属性</div>
+        <div class="menu-row"><span>昵称</span><input id="opt-name" type="text" maxlength="12" placeholder="银月" /></div>
+        <div class="menu-row wide"><span>开场白</span><input id="opt-greeting" type="text" maxlength="60" placeholder="留空使用内置问候" /></div>
+        <div class="menu-row"><span>搭话间隔(分钟)</span><input id="opt-chatter-interval" type="number" min="10" max="120" step="5" /></div>
+        <div class="hint wide">昵称用于银月的自称；开场白每次启动时先播报；搭话间隔指长时间无人理会时银月主动开口的间隔，0 为按性格自动。</div>
+
+        <div class="section-header wide">行为参数</div>
+        <div class="menu-row"><span>行为模式</span>
+          <select id="opt-move-mode-sys">
+            <option value="auto">自由漫步</option>
+            <option value="still">原地待命</option>
+          </select>
+        </div>
+        <div class="menu-row wide"><span>宠物大小 <b id="lbl-scale-sys"></b></span>
+          <input id="opt-scale-sys" type="range" min="0.5" max="2" step="0.05" />
+        </div>
+        <div class="menu-row wide"><span>走动速度 <b id="lbl-walk-speed"></b> px/s</span>
+          <input id="opt-walk-speed" type="range" min="50" max="400" step="10" />
+        </div>
+        <div class="menu-row"><span>拖到边缘执行边缘动作</span><input id="opt-edge-snap" type="checkbox" /></div>
+        <div class="menu-row"><span>吸附向内偏移</span><input id="opt-snap-inset" type="number" min="0" max="200" step="2" /></div>
+        <div class="menu-row"><span>拖动方式</span>
+          <select id="opt-drag-btn">
+            <option value="right">右键按住拖动</option>
+            <option value="left">左键按住拖动</option>
+          </select>
+        </div>
+        <div class="menu-row"><span>无操作自动动作</span><input id="opt-auto-squat" type="checkbox" /></div>
+        <div class="menu-row"><span>自动动作等待(秒)</span><input id="opt-auto-squat-sec" type="number" min="5" max="300" step="5" /></div>
+        <div class="menu-row wide">
+          <button id="btn-squat" class="btn">趴到任务栏</button>
+          <button id="btn-walk-test" class="btn">演示行走</button>
+          <button id="btn-snap-test" class="btn">演示吸附</button>
+        </div>
+        <div class="hint wide">边缘吸附：拖到左/右/上边缘附近松手会自动贴边并常驻半身探头姿势（再次拖拽脱离），拖到下边缘趴任务栏；无操作自动动作：空闲一段时间后随机执行 趴下/左右上吸附/探头/走动 之一，持续无操作还会自动换动作；演示按钮可手动触发对应效果；走动速度控制自由漫步时的移动快慢。</div>
+
+        <div class="section-header wide">探头探脑</div>
+        <div class="menu-row"><span>贴边静止触发(秒)</span><input id="opt-peek-idle" type="number" min="5" max="600" step="5" /></div>
+        <div class="menu-row"><span>动画时长(秒)</span><input id="opt-peek-duration" type="number" min="1" max="10" step="1" /></div>
+        <div class="menu-row wide"><span>探出幅度 <b id="lbl-peek-ratio"></b></span>
+          <input id="opt-peek-ratio" type="range" min="0.2" max="0.9" step="0.05" />
+        </div>
+        <div class="menu-row"><span>触发间隔(秒)</span><input id="opt-peek-interval" type="number" min="10" max="600" step="5" /></div>
+        <div class="menu-row wide">
+          <button id="btn-peek-test" class="btn primary">演示探头</button>
+          <span class="muted">轮流演示 左 / 上 / 右 三个方向</span>
+        </div>
+        <div class="hint wide">静止贴着屏幕左/右/上边缘超过触发时间会探头张望；幅度 0.55 约探出半个身位；触发间隔防止连续探头。</div>
+
+        <div class="section-header wide">偶发探头</div>
+        <div class="menu-row"><span>偶发探头</span><input id="opt-peek-v2-enabled" type="checkbox" /></div>
+        <div class="menu-row"><span>间隔下限(分钟)</span><input id="opt-peek-freq-min" type="number" min="5" max="240" step="5" /></div>
+        <div class="menu-row"><span>间隔上限(分钟)</span><input id="opt-peek-freq-max" type="number" min="5" max="360" step="5" /></div>
+        <div class="menu-row"><span>每日上限(次)</span><input id="opt-peek-max-day" type="number" min="1" max="20" step="1" /></div>
+        <div class="hint wide">长时间无互动时银月会偶尔走到屏幕边缘探头张望吸引注意；点击或对话回应会加心情，无视则心情 -1。间隔为两次偶发探头之间的随机分钟区间。</div>
+
+        <div class="section-header wide">外观 · 自定义素材</div>
+        <div class="menu-row wide">
+          <span>素材目录</span>
+          <span id="asset-dir" class="value muted">使用内置素材</span>
+        </div>
+        <div id="asset-slots" class="asset-slots"></div>
+        <div class="menu-row wide action-row">
+          <button id="btn-assets-choose" class="btn">选择素材目录</button>
+          <button id="btn-assets-debug" class="btn">调试图片</button>
+          <button id="btn-assets-reset" class="btn">恢复默认</button>
+        </div>
+        <div class="hint wide">选择一个目录放自定义素材（透明 PNG）。推荐合图格式，4 个文件即可：sprite.png（主精灵图 4列×3行）、lean.png（趴下 1行×2列：趴睡|趴笑）、peek.png（探头 3列×2行：列=左/右/顶，行=基础帧|前景帧）、actions.png（动作 4列×2行：伸懒腰|打哈欠|托腮|小跳 / 摇头|跺脚|委屈|转圈）。也支持散图（lean0/1、peek_left(_fg) 等 17 个旧文件名），合图优先；缺哪个槽位就用内置素材。</div>
+
+        <div class="section-header wide">自定义台词</div>
+        <div class="menu-row wide"><span>启动问候</span><textarea id="opt-line-greeting" rows="2" placeholder="每行一条，留空用内置"></textarea></div>
+        <div class="menu-row wide"><span>拍头反应</span><textarea id="opt-line-pat" rows="2" placeholder="每行一条，留空用内置"></textarea></div>
+        <div class="menu-row wide"><span>拥抱台词</span><textarea id="opt-line-hug" rows="2" placeholder="每行一条，留空用内置"></textarea></div>
+        <div class="menu-row wide"><span>生气台词</span><textarea id="opt-line-angry" rows="2" placeholder="每行一条，留空用内置"></textarea></div>
+        <div class="hint wide">每行写一条候选台词，触发时随机选一条；留空则使用内置台词。保存后立即生效。</div>
+
+        <div class="section-header wide">高级参数</div>
+        <div class="menu-row"><span>掉落概率(0~1)</span><input id="opt-drop-rate" type="number" min="0" max="1" step="0.05" /></div>
+        <div class="menu-row"><span>饱食衰减(分钟)</span><input id="opt-satiety-decay" type="number" min="10" max="240" step="5" /></div>
+        <div class="menu-row"><span>移动间隔(秒,0=随机)</span><input id="opt-move-interval" type="number" min="0" max="120" step="1" /></div>
+        <div class="hint wide">掉落概率=互动捡到道具的几率(0~1)；饱食衰减=每多少分钟扣除一点饱食度；移动间隔=宠物自动走动的最小间隔，0 使用内置随机 6~15 秒。</div>
+
+        <div class="section-header wide">数据与操作</div>
+        <div class="menu-row wide action-row">
+          <button id="btn-diary" class="btn">查看银月日记</button>
+          <button id="btn-quit" class="btn quit-btn">关闭设置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div id="ctxmenu" class="hidden">
+      <button class="ctx-item" data-act="chat">聊天</button>
+      <button class="ctx-item" data-act="feed">喂食</button>
+      <button class="ctx-item" data-act="pat">摸摸头</button>
+      <button class="ctx-item" data-act="move">切换漫步/待命</button>
+      <button class="ctx-item" data-act="menu">设置</button>
+      <div class="ctx-sep"></div>
+      <button class="ctx-item danger" data-act="quit">退出银月</button>
+    </div>
+
+    <!-- 语音录音中的状态角标 -->
+    <div id="recording" class="hidden"><span class="dot"></span>正在聆听…</div>
+
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

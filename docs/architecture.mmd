@@ -1,0 +1,98 @@
+```mermaid
+graph TB
+    subgraph 渲染进程["🖥️ 渲染进程（Electron BrowserWindow）"]
+        APP["app.ts<br/>应用编排：状态恢复+渲染循环+交互"]
+        CANVAS["pet/renderer.ts<br/>Canvas 精灵图渲染"]
+        MOVE["pet/movement.ts<br/>自主走动+边缘探头+坐任务栏"]
+        EMOTION["core/emotion.ts<br/>12种情绪+好感度"]
+        CHAT_UI["core/chat.ts<br/>对话UI+气泡"]
+        BUBBLE["ui/bubble.ts<br/>消息气泡"]
+        PANEL["ui/panel.ts<br/>控制台六标签"]
+        WIDGET["ui/widget.ts<br/>桌面小卡片"]
+        TTS_R["voice/tts.ts<br/>Edge神经语音"]
+        ASR_R["voice/asr.ts<br/>Vosk离线语音识别"]
+        NOISE["voice/noise.ts<br/>WebAudio环境音"]
+        EFFECTS["core/effects.ts<br/>粒子特效（星光/节日）"]
+    end
+
+    subgraph 主进程["⚙️ 主进程（Node.js）"]
+        INDEX["index.ts<br/>窗口创建+托盘+全局快捷键"]
+        IPC["ipc.ts<br/>IPC通道注册（30+）"]
+        ROUTER["chat-router.ts<br/>意图解析+技能路由分发"]
+        GLM["glm.ts<br/>GLM API客户端"]
+        MEM["memory.ts<br/>长期记忆（12轮总结）"]
+        STORE["store.ts<br/>electron-store 持久化"]
+        DB["db.ts<br/>SQLite统计库"]
+        SCHED["scheduler.ts<br/>定时提醒"]
+        REMIND["reminders.ts<br/>久坐/喝水提醒"]
+        POMO["pomodoro.ts<br/>番茄钟"]
+        TODOS["todos.ts<br/>待办清单"]
+        WEATHER["weather.ts<br/>Open-Meteo天气"]
+        DIARY["diary.ts<br/>银月日记"]
+        NURTURE["nurture.ts<br/>性格养成四维"]
+        REPORT["report.ts<br/>今日报告"]
+        CONFIG["appconfig.ts<br/>运行时配置（热改）"]
+        TTS_M["ttssynth.ts<br/>TTS合成服务"]
+        ASR_M["asr.ts<br/>ASR模型加载"]
+    end
+
+    subgraph 数据层["💾 数据层"]
+        ESTORE["electron-store<br/>config.json<br/>情绪/历史/好感/性格/<br/>番茄钟/待办/记忆/日记/成就"]
+        SQLDB["pet-stats.db<br/>SQLite<br/>reminders表+achievements表"]
+        MEM_FILES["记忆.json + 记忆.md<br/>用户指定目录明文副本"]
+        CFG_LOCAL["config.local.json<br/>API地址/Key/模型/记忆目录"]
+    end
+
+    subgraph 外部API["🌐 外部服务"]
+        HERMES["Hermes Agent API<br/>172.22.40.153:8642/v1<br/>X-Hermes-Session-Id: desktop-pet"]
+        EDGE_TTS["Edge TTS<br/>神经语音（免费）"]
+        VOSK["Vosk 中文模型<br/>离线ASR（42MB）"]
+        METEO["Open-Meteo<br/>免费天气API"]
+    end
+
+    subgraph 预加载["🔗 预加载桥"]
+        PRELOAD["preload/index.ts<br/>contextBridge<br/>安全暴露 IPC 接口"]
+    end
+
+    APP --> CANVAS
+    APP --> MOVE
+    APP --> EMOTION
+    APP --> CHAT_UI
+    APP --> BUBBLE
+    APP --> PANEL
+    APP --> WIDGET
+    APP --> TTS_R
+    APP --> ASR_R
+    APP --> NOISE
+    APP --> EFFECTS
+
+    APP -->|window.pet API| PRELOAD
+    PRELOAD -->|ipcRenderer.invoke| IPC
+    IPC --> ROUTER
+    IPC --> GLM
+    IPC --> MEM
+    IPC --> STORE
+    IPC --> DB
+    IPC --> SCHED
+    IPC --> REMIND
+    IPC --> POMO
+    IPC --> TODOS
+    IPC --> WEATHER
+    IPC --> DIARY
+    IPC --> NURTURE
+    IPC --> REPORT
+    IPC --> CONFIG
+    IPC --> TTS_M
+    IPC --> ASR_M
+
+    ROUTER --> GLM
+    GLM -->|POST /v1/chat/completions| HERMES
+    MEM --> GLM
+    MEM -->|明文副本| MEM_FILES
+    STORE --> ESTORE
+    DB --> SQLDB
+    CONFIG --> CFG_LOCAL
+    TTS_M --> EDGE_TTS
+    ASR_M --> VOSK
+    WEATHER --> METEO
+```

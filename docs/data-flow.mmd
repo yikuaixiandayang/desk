@@ -1,0 +1,65 @@
+```mermaid
+sequenceDiagram
+    participant U as 用户
+    participant R as 渲染进程
+    participant P as 主进程
+    participant S as electron-store
+    participant H as Hermes API
+
+    Note over U,H: ① 对话流程（带意图路由）
+    U->>R: 输入文字 / 语音识别
+    R->>P: IPC: glmChat {history, ctx, memoryFacts}
+    P->>P: chat-router 意图解析
+    alt 本地技能（提醒/待办/番茄钟/天气/谜语...）
+        P->>S: 读写本地数据
+        P-->>R: 本地秒回（零延迟零token）
+    else 需要 AI 对话
+        P->>P: buildSystemPrompt（情绪+好感+性格+记忆注入）
+        P->>H: POST /v1/chat/completions
+        H-->>P: AI 回复
+        P->>S: 存入对话历史
+        P-->>R: 回复文本
+    end
+    R->>R: 气泡显示 + TTS 语音播报
+
+    Note over U,H: ② 长期记忆总结（每12轮触发）
+    P->>P: 检测助手回复计数 % 12 == 0
+    P->>P: 取近期对话 → chatRaw（GLM总结）
+    P->>P: 提炼 ≤20 条记忆要点
+    P->>S: 写入 electron-store memory
+    P->>P: mirrorToDisk → 记忆.json + 记忆.md
+    Note right of P: 下次对话时记忆注入 system prompt
+
+    Note over U,H: ③ 定时提醒
+    U->>R: "提醒我30分钟后站起来"
+    R->>P: IPC: timerAdd
+    P->>S: 存入 timers
+    P->>P: scheduler 每10秒检查
+    Note right of P: 到点触发
+    P-->>R: webContents.send(timerFire)
+    R->>R: 气泡 + TTS 播报
+    R->>U: 用户确认 / 2分钟不理 → 生气
+
+    Note over U,H: ④ 番茄钟
+    U->>R: "开个番茄钟"
+    R->>P: IPC → pomodoro 启动
+    P->>S: 存入 pomodoro state
+    P->>P: 专注期间银月安静不打扰
+    Note right of P: 25分钟后
+    P-->>R: 完成通知 + 三个选择
+    R->>U: 气泡：休息5分钟/再来一轮/结束
+
+    Note over U,H: ⑤ 性格养成
+    U->>R: 对话/摸头/番茄钟/天气
+    R->>P: IPC: nurtureEvent
+    P->>P: 四维统计累加（话唠/粘人/学霸/探险）
+    P->>S: 存入 personality
+    P->>P: 取最高维度 → 性格标签
+    Note right of P: 注入 system prompt → GLM 回复风格变化
+
+    Note over U,H: ⑥ 启动恢复
+    P->>S: 读取全部持久化状态
+    P->>P: 恢复情绪/好感/性格/待办/番茄钟
+    P->>P: 检查错过的提醒 → 补发
+    P-->>R: 状态推送 + 渲染恢复
+```

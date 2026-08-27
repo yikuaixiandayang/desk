@@ -1,0 +1,34 @@
+{
+  "name": "desktop-pet-yinyue",
+  "version": "0.8.0",
+  "description": "银月桌面宠物 — Electron 桌面秘书宠物（GLM-5.2 对接）",
+  "type": "module",
+  "main": "out/main/index.js",
+  "author": "desktop-pet",
+  "private": true,
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "selftest": "electron-vite build && electron . --self-test",
+    "package": "electron-vite build && electron-builder --win"
+  },
+  "dependencies": {
+    "electron-store": "^10.1.0",
+    "msedge-tts": "^2.0.7",
+    "uiohook-napi": "^1.5.5",
+    "vosk-browser": "^0.0.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "electron": "^39.0.0",
+    "electron-builder": "^26.0.0",
+    "electron-vite": "^4.0.0",
+    "typescript": "^5.6.0",
+    "vite": "^7.0.0",
+    "vitest": "^3.0.0"
+  }
+}

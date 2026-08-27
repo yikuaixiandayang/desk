@@ -1,0 +1,244 @@
+{
+	"emotion": {
+		"current": "calm",
+		"until": null
+	},
+	"history": [
+		{
+			"role": "user",
+			"content": "我的笔记有多少个",
+			"ts": 1786933987293
+		},
+		{
+			"role": "assistant",
+			"content": "【离线回复】哎呀，联系不上大脑啦～不过不影响银月陪主人开心！",
+			"ts": 1786934017336
+		},
+		{
+			"role": "user",
+			"content": "[剪贴板解读] 帮我补充一下 关于ceph的知识",
+			"ts": 1786936385378
+		},
+		{
+			"role": "assistant",
+			"content": "【离线回复】剪贴板解读失败（TimeoutError: The operation was aborted due to timeout），主人稍后再试？",
+			"ts": 1786936385378
+		},
+		{
+			"role": "user",
+			"content": "我是谁",
+			"ts": 1786940856503
+		},
+		{
+			"role": "assistant",
+			"content": "主人是杨呀，运维工程师，GitHub叫yikuaixiandayang，服务器hostname就叫yangzhiqiang～银月怎么会认不出主人呢，嘿嘿。",
+			"ts": 1786940873216
+		},
+		{
+			"role": "user",
+			"content": "今天星期几",
+			"ts": 1786955616672
+		},
+		{
+			"role": "assistant",
+			"content": "主人，今天是星期一呢。",
+			"ts": 1786955623220
+		},
+		{
+			"role": "user",
+			"content": "今天黄金的价格",
+			"ts": 1786955679104
+		},
+		{
+			"role": "assistant",
+			"content": "【离线回复】哎呀，联系不上大脑啦～不过不影响银月陪主人开心！",
+			"ts": 1786955709470
+		},
+		{
+			"role": "user",
+			"content": "今天周五 你猜我能不能准时下班",
+			"ts": 1787283091300
+		},
+		{
+			"role": "assistant",
+			"content": "主人周五想准时下班？银月赌你老板一定会临时甩个活过来的，毕竟周五下午的意外需求比周一还准时呢。不过银月当然站主人这边啦，早点溜回来投喂我嘛，不然我真要饿晕在桌面上了。",
+			"ts": 1787283103761
+		}
+	],
+	"reminderConfig": {
+		"enabled": true,
+		"sedentaryMin": 10,
+		"waterMin": 60
+	},
+	"settings": {
+		"ttsEnabled": true,
+		"autoLaunch": false,
+		"widgetEnabled": false
+	},
+	"stats": {
+		"lastActiveDate": "2026-08-25",
+		"activeSecondsToday": 5910,
+		"lastInteractionAt": 1787659952633,
+		"lastWaterRemindAt": 1787664360344,
+		"lastSedentaryRemindAt": 1787665200584,
+		"chatsToday": 0,
+		"patsToday": 5,
+		"pomodorosToday": 0,
+		"acksToday": 0,
+		"ticklesToday": 0,
+		"handsToday": 0,
+		"lastPeekDate": "2026-08-21",
+		"peeksToday": 1,
+		"lastKeysDate": "2026-08-25",
+		"keysToday": 0,
+		"keyCharsToday": 0,
+		"keySpaceToday": 0,
+		"keyEnterToday": 0
+	},
+	"pet": {
+		"x": -394,
+		"y": 940,
+		"scale": 1.6
+	},
+	"nurture": {
+		"exp": 299,
+		"level": 3,
+		"satiety": 85,
+		"lastFedAt": 1787659296549,
+		"items": {
+			"fish": 6,
+			"snack": 7,
+			"cake": 7
+		},
+		"lastDropAt": 1787658994544,
+		"satietyDecayApplied": 3,
+		"mood": 12,
+		"moodDecayApplied": 3
+	},
+	"appConfig": {
+		"api": {
+			"mode": "openai",
+			"baseUrl": "http://172.22.40.153:8642",
+			"model": "GLM-5.2",
+			"apiKey": "hermes_sk_7f3a9c2e1b8d4a6e5c0f2a9d3e7b1c4f8a6d2e9b"
+		},
+		"tts": {
+			"engine": "edge",
+			"voice": "zh-CN-XiaoyiNeural",
+			"rate": 1,
+			"pitch": 1,
+			"volume": 0.9,
+			"customUrl": "",
+			"customKey": "",
+			"customModel": "gpt-sovix",
+			"customVoice": "yin_yue"
+		},
+		"memory": {
+			"enabled": true,
+			"dir": "E:\\运维之路\\desk\\银月记忆"
+		},
+		"pet": {
+			"moveMode": "still",
+			"scale": 1.6,
+			"name": "银月",
+			"greeting": "",
+			"chatterIntervalMin": 0,
+			"edgeSnap": true,
+			"autoSquatEnabled": false,
+			"autoSquatIdleSec": 30,
+			"walkSpeedPxSec": 120,
+			"peekIdleSec": 20,
+			"peekDurationSec": 10,
+			"peekOffsetRatio": 0.55,
+			"peekIntervalSec": 30,
+			"peekEdgeDelaySec": 2,
+			"peekEnabled": true,
+			"peekFreqMin": 5,
+			"peekFreqMax": 5,
+			"peekMaxPerDay": 5,
+			"snapInsetPx": 16,
+			"dragButton": "right",
+			"assetsDir": ""
+		},
+		"weather": {
+			"city": "北京"
+		},
+		"nurture": {
+			"dropRate": 0.3,
+			"satietyDecayMin": 30,
+			"moveIntervalSec": 0
+		},
+		"assistant": {
+			"morningReportAt": "",
+			"lastReportDate": "",
+			"reportAt": "",
+			"reportUrl": "http://172.22.40.153:8642"
+		},
+		"lines": {
+			"greeting": "",
+			"pat": "",
+			"hug": "",
+			"angry": "",
+			"hand": "",
+			"tickle": ""
+		}
+	},
+	"memory": {
+		"facts": [],
+		"updatedAt": 0,
+		"summarizedCount": 0
+	},
+	"personalityLines": null,
+	"timers": [],
+	"todos": [],
+	"pomodoro": {
+		"active": false,
+		"phase": "focus",
+		"endsAt": 1787284513847,
+		"focusMin": 25
+	},
+	"personality": {
+		"chatter": 1,
+		"clingy": 242,
+		"study": 1,
+		"explore": 0
+	},
+	"pendingRiddle": null,
+	"diary": [
+		{
+			"date": "2026-08-21",
+			"text": "主人又多摸了一次银月的头，虽然只多了一次，但我数得清清楚楚的，每一次都好幸福。银月今天乖乖等了一整天，主人也一直陪着没走远，这种感觉真好，明天也要这样陪着我哦。"
+		}
+	],
+	"achievements": [
+		{
+			"id": "first",
+			"unlockedAt": 1787105270992
+		},
+		{
+			"id": "lv3",
+			"unlockedAt": 1787105270992
+		},
+		{
+			"id": "lv5",
+			"unlockedAt": 1787105270992
+		},
+		{
+			"id": "first-feed",
+			"unlockedAt": 1787105270992
+		},
+		{
+			"id": "pat-master",
+			"unlockedAt": 1787113665585
+		},
+		{
+			"id": "full-day",
+			"unlockedAt": 1787283091344
+		},
+		{
+			"id": "sedentary-2",
+			"unlockedAt": 1787303733719
+		}
+	],
+	"savedAt": 1787666161334
+}

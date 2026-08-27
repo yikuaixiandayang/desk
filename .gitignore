@@ -1,0 +1,24 @@
+node_modules/
+out/
+release/
+dist/
+config.local.json
+# 私人项目，接受密钥入库风险：放行 config.local.json 进版本控制
+!config.local.json
+*.log
+.vite/
+
+# 运行时数据：私人项目统一走 Git 同步，放行 data/ 与 银月记忆/
+data/
+!data/
+# 探针临时文件仍不入库
+data/.write-probe
+
+# 测试截图与自测结果（一次性调试产物，不入库）
+test_screenshots/
+selftest-result.json
+# 一次性临时脚本/残留（不去跟踪，仅防再入库）
+_screenshot*.png
+yunwei-notesdesk_capture.ps1
+_analyze.ps1
+_uiohook_smoke.cjs

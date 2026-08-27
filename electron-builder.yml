@@ -1,0 +1,19 @@
+appId: com.local.desktop-pet-yinyue
+productName: 银月桌宠
+directories:
+  output: release
+files:
+  - out/**
+  - package.json
+extraResources:
+  - from: resources
+    to: resources
+win:
+  target:
+    - nsis
+    - portable
+nsis:
+  oneClick: true
+  artifactName: ${productName}-${version}-setup.${ext}
+portable:
+  artifactName: ${productName}-${version}-portable.${ext}
